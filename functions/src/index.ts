@@ -20,7 +20,7 @@ type Subscriber = {
     id: string,
     email: string,
     created: Date,
-    comfirmed: boolean
+    confirmed: boolean
 }
   
 type AddSubscriberRequest = {
@@ -37,7 +37,7 @@ const addSub = async (req: AddSubscriberRequest, res: Response) => {
             id: subscribers.id,
             email,
             created: new Date(),
-            comfirmed: false
+            confirmed: false
         };
         
         subscribers.set(newSub);

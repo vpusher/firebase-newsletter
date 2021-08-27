@@ -1,17 +1,29 @@
-<script>
+<script lang="ts">
     import Login from './Login.svelte';
     import Profile from './Profile.svelte';
     import { auth } from './firebase/firebase'
-    import { onAuthStateChanged } from 'firebase/auth'
+    import { onAuthStateChanged } from 'firebase/auth';
     import { onMount } from 'svelte';
+    import Subscribers from './Subscribers.svelte';
+    import Subscribe from './Subscribe.svelte';
 
     export let user;
 
-    onAuthStateChanged(auth, (u) => {
-        if (u) {
-            user = u
+    $: getUserRole = getUserRoleFromClaims(user);
+
+    const getUserRoleFromClaims = async function (user) {
+        if (user) {
+            return (await user.getIdTokenResult()).claims.role;
         } else {
-            user = null
+            return false
+        }
+    }
+
+    onAuthStateChanged(auth, async (u) => {
+        if (u) {
+            user = u;
+        } else {
+            user = null;
         }
     });
 
@@ -24,11 +36,17 @@
 </svelte:head>
 
 <main>
-    <h1>Hello!</h1>
-    <Login user={user}/>
+    <h1>Newsletter</h1>
     {#if user}
-        <Profile {...user} />
+    <Profile {...user} />
     {/if}
+    <Login user={user}/>
+    {#await getUserRole then role}
+        {#if role === 'admin'}
+            <Subscribers />
+        {/if}
+    {/await}
+    <Subscribe />
 </main>
 
 <style>
